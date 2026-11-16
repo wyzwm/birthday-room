@@ -64,11 +64,17 @@ window.addEventListener('message', event => {
   if (event.data?.type === 'birthday:ready') {
     pendingDocument = null;
     let opened = [];
+    let qualified = [];
     try { opened = JSON.parse(sessionStorage.getItem('birthday-atelier-opened-v2') || '[]'); } catch {}
-    frame.contentWindow.postMessage({ type: 'birthday:restore', opened: Array.isArray(opened) ? opened : [] }, '*');
+    try { qualified = JSON.parse(sessionStorage.getItem('birthday-atelier-qualified-v1') || '[]'); } catch {}
+    frame.contentWindow.postMessage({ type: 'birthday:restore', opened: Array.isArray(opened) ? opened : [], qualified: Array.isArray(qualified) ? qualified : [] }, '*');
   }
   if (event.data?.type === 'birthday:progress' && Array.isArray(event.data.opened)) {
     const opened = event.data.opened.filter(id => typeof id === 'string' && /^[a-z-]{1,40}$/.test(id)).slice(0, 6);
     try { sessionStorage.setItem('birthday-atelier-opened-v2', JSON.stringify(opened)); } catch {}
+    if (Array.isArray(event.data.qualified)) {
+      const qualified = event.data.qualified.filter(id => typeof id === 'string' && /^[a-z-]{1,40}$/.test(id)).slice(0, 6);
+      try { sessionStorage.setItem('birthday-atelier-qualified-v1', JSON.stringify(qualified)); } catch {}
+    }
   }
 });
